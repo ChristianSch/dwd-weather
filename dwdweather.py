@@ -8,7 +8,7 @@ import json
 import math
 import sqlite3
 import argparse
-import StringIO
+import io
 import traceback
 from ftplib import FTP
 from zipfile import ZipFile
@@ -471,7 +471,7 @@ class DwdWeather(object):
                     continue
                 if self.verbosity > 1:
                     print("Reading file %s/%s" % (path, filename))
-                f = StringIO.StringIO()
+                f = io.StringIO()
                 ftp.retrbinary('RETR ' + filename, f.write)
                 self.import_station(f.getvalue())
                 f.close()
@@ -498,7 +498,7 @@ class DwdWeather(object):
         for line in content.split("\n"):
             linecount += 1
             line = line.strip()
-            if line == "" or line == u'\x1a':
+            if line == "" or line == '\x1a':
                 continue
             #print linecount, line
             if linecount > 2:
@@ -561,7 +561,7 @@ class DwdWeather(object):
         """
         if self.verbosity > 0:
             station_info = self.station_info(station_id)
-            print
+            print()
             print("=" * 42)
             print("Importing measurements for station %d" % station_id)
             print("=" * 42)
@@ -602,7 +602,7 @@ class DwdWeather(object):
 
         for cat in self.categories.keys():
             if self.verbosity > 1:
-                print
+                print()
                 print('-' * 42)
                 print("Downloading %s data" % cat.replace('_', ' '))
                 print('-' * 42)
@@ -645,7 +645,7 @@ class DwdWeather(object):
                     download_and_import(path, filename, cat, timerange)
 
         if self.verbosity > 1:
-            print
+            print()
             print('-' * 42)
             print("Importing files")
             print('-' * 42)
@@ -848,7 +848,7 @@ class DwdWeather(object):
         """
         Return stations list as CSV
         """
-        csvfile = StringIO.StringIO()
+        csvfile = io.StringIO()
         # assemble field list
         headers = ["station_id", "date_start", "date_end",
             "geo_lon", "geo_lat", "height", "name"]
@@ -878,7 +878,7 @@ def main():
 
     def get_station(args):
         dw = DwdWeather(cachepath=args.cachepath, verbosity=args.verbosity)
-        print json.dumps(dw.nearest_station(lon=args.lon, lat=args.lat), indent=4)
+        print(json.dumps(dw.nearest_station(lon=args.lon, lat=args.lat), indent=4))
 
     def get_stations(args):
         dw = DwdWeather(cachepath=args.cachepath, verbosity=args.verbosity)
@@ -890,7 +890,7 @@ def main():
         elif args.type == "plain":
             output = dw.stations_csv(delimiter="\t")
         if args.output_path is None:
-            print output
+            print(output)
         else:
             f = open(args.output_path, "wb")
             f.write(output)
@@ -899,7 +899,7 @@ def main():
     def get_weather(args):
         hour = datetime.strptime(str(args.hour), "%Y%m%d%H")
         dw = DwdWeather(cachepath=args.cachepath, verbosity=args.verbosity)
-        print json.dumps(dw.query(args.station_id, hour), indent=4, sort_keys=True)
+        print(json.dumps(dw.query(args.station_id, hour), indent=4, sort_keys=True))
 
     argparser = argparse.ArgumentParser(prog="dwdweather",
         description="Get weather information for Germany.")
